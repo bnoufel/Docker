@@ -1,0 +1,9 @@
+FROM ft-rails:on-build
+
+EXPOSE 3000
+
+RUN rails new blog
+
+WORKDIR blog
+
+CMD ["rails", "server"]

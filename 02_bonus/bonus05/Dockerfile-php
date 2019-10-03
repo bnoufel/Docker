@@ -1,0 +1,28 @@
+FROM php:7-fpm
+ARG USERDC
+ARG DB
+ARG DBUSER
+ARG DBPASSWD
+ARG PROJECT
+
+RUN apt-get update && apt-get install -y zlib1g-dev git unzip zip sudo
+
+RUN adduser --disabled-password ${USERDC} && adduser ${USERDC} sudo
+RUN docker-php-ext-install pdo pdo_mysql 
+RUN echo "${USERDC} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+RUN curl --silent --show-error https://getcomposer.org/installer | php
+
+RUN mv composer.phar /usr/local/bin/composer
+RUN chown ${USERDC}:root /usr/local/bin/composer
+WORKDIR /usr/share/nginx/html/
+COPY ./${PROJECT} /usr/share/nginx/html/${PROJECT}
+RUN chown -R ${USERDC}:${USERDC} /usr/share/nginx/html/${PROJECT}
+USER ${USERDC}
+WORKDIR /usr/share/nginx/html/${PROJECT}/
+COPY envLaravel ./.env
+RUN sed -i "s|%HOST%|mariadb|g" .env
+RUN sed -i "s|%DATABASE%|${DB}|g" .env
+RUN sed -i "s|%DBUSER%|${DBUSER}|g" .env
+RUN sed -i "s|%DBPASSWD%|${DBPASSWD}|g" .env
+RUN sudo composer install

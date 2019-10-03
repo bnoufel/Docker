@@ -1,0 +1,7 @@
+docker run -tid -p 3000:3000 -v ${HOME}:/root -e FLASK_APP=/root/19.py --name Abathur python:2-slim sh -c "pip install flask flask-sqlalchemy flask-admin && apt-get update && apt-get install vim gcc"
+docker cp 19.py Abathur:/root
+#####################
+# Puis aller dedans 
+# docker exec -it $(docker ps | grep Abathur | cut -d ' ' -f 1) /bin/bash
+# Et lancer les commandes suivantes :
+# flask run --port=3000 --host=0.0.0.0

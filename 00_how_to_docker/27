@@ -1,0 +1,1 @@
+docker service logs -f $(docker service ls | grep 42school/engineering-bay | cut -d ' ' -f 1)

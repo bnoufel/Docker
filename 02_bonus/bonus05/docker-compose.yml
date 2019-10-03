@@ -1,0 +1,52 @@
+version: '3.2'
+
+services:
+    nginx:
+        image: nginx
+        container_name: nginx
+        build:
+            context: .
+            dockerfile: Dockerfile-nginx
+            args:
+                PROJECT: ${PROJECT}
+        ports:
+            - "80:80"
+            - "443:443"
+        links:
+            - php
+            - mariadb
+        volumes:
+            - type: "bind"
+              source: "./${PROJECT}"
+              target: "/usr/share/nginx/html/${PROJECT}"
+    php:
+        image: php:7-fpm
+        container_name: php
+        build:
+            context: .
+            dockerfile: Dockerfile-php
+            args:
+                USERDC: ${USERDC}
+                DB: ${DB}
+                DBUSER: ${DBUSER}
+                DBPASSWD: ${DBPASSWD}
+                PROJECT: ${PROJECT}
+        volumes:
+            - type: "bind"
+              source: "./${PROJECT}"
+              target: "/usr/share/nginx/html/${PROJECT}"
+        ports:
+            - "9000:9000"
+        links:
+            - mariadb
+    mariadb:
+        image: mariadb
+        container_name: mariadb
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=${DBROOTPASSWD}
+            - MYSQL_DATABASE=${DB}
+            - MYSQL_USER=${DBUSER}
+            - MYSQL_PASSWORD=${DBPASSWD}
+            - MYSQL_ALLOW_EMPTY_PASSWORD=yes
